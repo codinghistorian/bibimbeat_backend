@@ -43,9 +43,9 @@ app.post('/pinMusicSourceToIPFS', (req, res) => {
     const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
 });
 
-app.post('/pinAlbumCoverToIPFS', upload.none(), (req, res) => {
+app.post('/pinAlbumCoverToIPFS', multerImage.single("image"), (req, res) => {
     const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
-    console.log(req.body);
+    console.log(req.file);
     res.send();
 });
 
