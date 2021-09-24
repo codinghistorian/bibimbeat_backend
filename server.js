@@ -6,8 +6,17 @@ const fs = require('fs');
 const FormData = require('form-data');
 const multer = require('multer');
 
-const multerImage = multer({dest: 'ImageToUpload/'});
-const multerMusic = multer({dest: 'MusicToUpload/'});
+const multerImage = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, 'ImageToUpload/'),
+        filename: (req, file, cb) => cb(null, file.originalname)
+    })
+});
+const multerMusic = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, 'MusicToUpload/')
+    })
+});
 
 require("dotenv").config();
 
