@@ -1,15 +1,25 @@
-const express = require('express')
-const app = express()
-const port = 4000
+const express = require('express');
+const app = express();
+const port = 4000;
 const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
+const multer = require('multer');
+
+const multerImage = multer({dest: 'ImageToUpload/'});
+const multerMusic = multer({dest: 'MusicToUpload/'});
 
 require("dotenv").config();
 
+app.use(express.json());
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
+
 app.get('/', (req, res) => {
-    
-    res.header("Access-Control-Allow-Origin", "http://localhost:3000");
     const url = `https://api.pinata.cloud/data/testAuthentication`;
 
     return axios.get(url, {
@@ -27,7 +37,23 @@ app.get('/', (req, res) => {
             console.log(error);
             //handle error here
         });
-})
+});
+
+app.post('/pinMusicSourceToIPFS', (req, res) => {
+    const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+});
+
+app.post('/pinAlbumCoverToIPFS', upload.none(), (req, res) => {
+    const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+    console.log(req.body);
+    res.send();
+});
+
+app.post('/pinJsonFileToIPFS', (req, res) => {
+    const url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+    res.send();
+    // const metadata = JSON.stringify(req.body);
+});
 
 app.post('/pinFileToIPFS', (req, res) => {
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;

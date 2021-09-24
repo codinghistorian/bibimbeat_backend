@@ -11,14 +11,17 @@ function App() {
   const [Description, setDescription] = useState("");
   const [ExternalURL, setExternalURL] = useState("");
   const [Amount, setAmount] = useState("");
+
+  const [File, setFile] = useState(null);
+  const [FileName, setFileName] = useState("Upload Image");
   
   const PutText = (str) => setText(str);
-  const PutTitle = (str) => setTitle(str);
-  const PutArtist = (str) => setArtist(str);
-  const PutGenre = (str) => setGenre(str);
-  const PutDescription = (str) => setDescription(str);
-  const PutExternalURL = (str) => setExternalURL(str);
-  const PutAmount = (str) => setAmount(str);
+  const PutTitle = (e) => setTitle(e.target.value);
+  const PutArtist = (e) => setArtist(e.target.value);
+  const PutGenre = (e) => setGenre(e.target.value);
+  const PutDescription = (e) => setDescription(e.target.value);
+  const PutExternalURL = (e) => setExternalURL(e.target.value);
+  const PutAmount = (e) => setAmount(e.target.value);
 
   const GetPinataAuth = () => {
     const url = "http://localhost:4000";
@@ -30,11 +33,49 @@ function App() {
 
   const inputRef = useRef(null);
 
-  const Upload = () => {
+  const ClickInput = () => {
     inputRef.current?.click();
   }
 
-  const SubmitForm = (e) => {
+  const Upload = (e) => {
+    console.log(e.target.files[0]);
+    setFileName(e.target.files[0].name)
+    setFile(e.target.files[0]);
+  }
+
+  const SubmitForm = () => {
+    const JsonPosturl = "http://localhost:4000/pinJsonFileToIPFS";
+    const ImagePostUrl = "http://localhost:4000/pinAlbumCoverToIPFS";
+    const MusicPostUrl = "http://localhost:4000/pinMusicSourceToIPFS";
+
+    const data = {
+      title: Title,
+      artist: Artist,
+      genre: Genre,
+      description: Description,
+      externalURL: ExternalURL,
+      amount: Amount
+    };
+    
+    console.log(File);
+
+    // post image file to the server
+    const formData = new FormData();
+    formData.append("image", File);
+    axios.post(ImagePostUrl, formData, {
+      headers: {
+        'Content-type': 'multipart/form-data'
+      }
+    })
+
+    // post music source file to the server
+
+
+
+    // post json file to the server
+    axios.post(JsonPosturl, JSON.stringify(data), {
+      headers: {"Content-Type": "application/json"}
+    });
   }
 
   return (
@@ -48,8 +89,8 @@ function App() {
         </Row>
         <Row className="justify-content-md-center">
           <Col>
-            <Button variant="primary" style={{ width: "15vw"}} onClick={Upload}>Upload Image</Button>
-            <input type="file" ref={inputRef} style={{ display: "none" }} />
+            <Button variant="primary" style={{ width: "15vw"}} onClick={ClickInput}>{FileName}</Button>
+            <input type="file" ref={inputRef} style={{ display: "none" }} onChange={Upload}/>
           </Col>
         </Row>
         <Row className="justify-content-md-center" style={{ marginTop: "5vh"}} onSubmit={SubmitForm}>
