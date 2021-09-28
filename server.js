@@ -5,6 +5,7 @@ const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
 const multer = require('multer');
+const NFTStorage = require('nft.storage');
 
 const multerImage = multer({
     storage: multer.diskStorage({
@@ -12,9 +13,11 @@ const multerImage = multer({
         filename: (req, file, cb) => cb(null, file.originalname)
     })
 });
+
 const multerMusic = multer({
     storage: multer.diskStorage({
-        destination: (req, file, cb) => cb(null, 'MusicToUpload/')
+        destination: (req, file, cb) => cb(null, 'MusicToUpload/'),
+        filename: (req, file, cb) => cb(null, file.originalname)
     })
 });
 
@@ -48,21 +51,90 @@ app.get('/', (req, res) => {
         });
 });
 
-app.post('/pinMusicSourceToIPFS', (req, res) => {
+app.post('/pinMusicSourceToIPFS', multerImage.single("music"), (req, res) => {
     const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
+    let data = new FormData();
+    let fsData = fs.createReadStream('./ImageToUpload/'+ req.file.filename);
+    data.append('file', fsData);
+    return axios.post(url, data, {
+        maxBodyLength: 'Infinity',
+        headers: {
+            'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+            pinata_api_key: process.env.PinataApiKey,
+            pinata_secret_api_key: process.env.PinataSecretKey
+        }
+    })
+    .then(function (response) {
+        console.log(response.data);
+        fs.unlink('./ImageToUpload/' + req.file.filename, (err) => err ? console.log(err) : console.log("파일을 삭제했습니다."));
+        res.send("Pinned album cover to IPFS!");
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
 });
 
 app.post('/pinAlbumCoverToIPFS', multerImage.single("image"), (req, res) => {
     const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
-    console.log(req.file);
-    res.send();
+    let data = new FormData();
+    let fsData = fs.createReadStream('./ImageToUpload/'+ req.file.filename);
+    data.append('file', fsData);
+
+    return axios.post(url, data, {
+        maxBodyLength: 'Infinity',
+        headers: {
+            'Content-Type': `multipart/form-data; boundary=${data._boundary}`,
+            pinata_api_key: process.env.PinataApiKey,
+            pinata_secret_api_key: process.env.PinataSecretKey
+        }
+    })
+    .then(function (response) {
+        console.log(response.data);
+        fs.unlink('./ImageToUpload/' + req.file.filename, (err) => err ? console.log(err) : console.log("파일을 삭제했습니다."));
+        res.send("Pinned album cover to IPFS!");
+    })
+    .catch(function (error) {
+        console.log(error);
+    });
 });
 
-app.post('/pinJsonFileToIPFS', (req, res) => {
+app.post('/pinJsonFileToIPFS', (req, res, JSONBody) => {
     const url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
-    res.send();
-    // const metadata = JSON.stringify(req.body);
+    let data = new FormData();
+    data.append('file', fs.createReadStream('./axol.jpeg'));
+
+    const metadata = JSON.stringify({
+        name: 'Axol fish :)',
+    });
+    data.append('pinataMetadata', metadata);
+
+
+    const JsonTest = JSON.stringify({
+        name: "hi Axol :)))"
+    });
+
+    return axios
+        .post(url, JsonTest, {
+            maxBodyLength: 'Infinity',
+            headers: {
+                pinata_api_key: process.env.PinataApiKey,
+                pinata_secret_api_key: process.env.PinataSecretKey
+            }
+        })
+        .then(function (response) {
+            console.log(response.data);
+            res.send("Pinned JSON file to IPFS!");
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
 });
+
+// app.post('/pinJsonFileToIPFS', (req, res) => {
+//     const url = 'https://api.pinata.cloud/pinning/pinJSONToIPFS';
+//     res.send();
+//     // const metadata = JSON.stringify(req.body);
+// });
 
 app.post('/pinFileToIPFS', (req, res) => {
     const url = `https://api.pinata.cloud/pinning/pinFileToIPFS`;

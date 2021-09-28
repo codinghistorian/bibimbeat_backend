@@ -12,8 +12,11 @@ function App() {
   const [ExternalURL, setExternalURL] = useState("");
   const [Amount, setAmount] = useState("");
 
-  const [File, setFile] = useState(null);
-  const [FileName, setFileName] = useState("Upload Image");
+  const [Image, setImage] = useState(null);
+  const [ImageName, setImageName] = useState("Upload Image");
+  
+  const [Song, setSong] = useState(null);
+  const [SongName, setSongName] = useState("Upload Music");
   
   const PutText = (str) => setText(str);
   const PutTitle = (e) => setTitle(e.target.value);
@@ -31,17 +34,29 @@ function App() {
     })
   }
 
-  const inputRef = useRef(null);
+  const imageInputRef = useRef(null);
+  const songInputRef = useRef(null);
 
-  const ClickInput = () => {
-    inputRef.current?.click();
+  const ClickImageInput = () => {
+    imageInputRef.current?.click();
+  }
+  
+  const ClickMusicInput = () => {
+    songInputRef.current?.click();
   }
 
-  const Upload = (e) => {
+  const UploadImage = (e) => {
     console.log(e.target.files[0]);
-    setFileName(e.target.files[0].name)
-    setFile(e.target.files[0]);
+    setImageName(e.target.files[0].name)
+    setImage(e.target.files[0]);
   }
+
+  const UploadMusic = (e) => {
+    console.log(e.target.files[0]);
+    setSongName(e.target.files[0].name)
+    setSong(e.target.files[0]);
+  }
+
 
   const SubmitForm = () => {
     const JsonPosturl = "http://localhost:4000/pinJsonFileToIPFS";
@@ -57,25 +72,33 @@ function App() {
       amount: Amount
     };
     
-    console.log(File);
+    console.log(Image);
+    console.log(Song);
 
     // post image file to the server
-    const formData = new FormData();
-    formData.append("image", File);
-    axios.post(ImagePostUrl, formData, {
+    const imageFormData = new FormData();
+    imageFormData.append("image", Image);
+    axios.post(ImagePostUrl, imageFormData, {
       headers: {
         'Content-type': 'multipart/form-data'
       }
     })
 
     // post music source file to the server
+    const musicFormData = new FormData();
+    musicFormData.append("music", Song);
+    axios.post(MusicPostUrl, musicFormData, {
+      headers: {
+        'Content-type': 'multipart/form-data'
+      }
+    })
 
 
 
     // post json file to the server
-    axios.post(JsonPosturl, JSON.stringify(data), {
-      headers: {"Content-Type": "application/json"}
-    });
+    // axios.post(JsonPosturl, JSON.stringify(data), {
+    //   headers: {"Content-Type": "application/json"}
+    // });
   }
 
   return (
@@ -87,10 +110,16 @@ function App() {
             <p>{Text}</p>
           </Col>
         </Row>
-        <Row className="justify-content-md-center">
+        <Row className="justify-content-md-center"  style={{ marginTop: "10vh"}} >
           <Col>
-            <Button variant="primary" style={{ width: "15vw"}} onClick={ClickInput}>{FileName}</Button>
-            <input type="file" ref={inputRef} style={{ display: "none" }} onChange={Upload}/>
+            <Button variant="primary" style={{ width: "15vw"}} onClick={ClickImageInput}>{ImageName}</Button>
+            <input type="file" ref={imageInputRef} style={{ display: "none" }} onChange={UploadImage}/>
+          </Col>
+        </Row>
+        <Row className="justify-content-md-center" style={{ marginTop: "2vh"}} >
+          <Col>
+            <Button variant="primary" style={{ width: "15vw"}} onClick={ClickMusicInput}>{SongName}</Button>
+            <input type="file" ref={songInputRef} style={{ display: "none" }} onChange={UploadMusic}/>
           </Col>
         </Row>
         <Row className="justify-content-md-center" style={{ marginTop: "5vh"}} onSubmit={SubmitForm}>
