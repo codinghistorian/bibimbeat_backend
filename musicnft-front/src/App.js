@@ -19,6 +19,7 @@ function App() {
   const [SongName, setSongName] = useState("Upload Music");
   
   const PutText = (str) => setText(str);
+  
   const PutTitle = (e) => setTitle(e.target.value);
   const PutArtist = (e) => setArtist(e.target.value);
   const PutGenre = (e) => setGenre(e.target.value);

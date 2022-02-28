@@ -5,7 +5,6 @@ const axios = require('axios');
 const fs = require('fs');
 const FormData = require('form-data');
 const multer = require('multer');
-const NFTStorage = require('nft.storage');
 
 const multerImage = multer({
     storage: multer.diskStorage({
@@ -54,7 +53,7 @@ app.get('/', (req, res) => {
 app.post('/pinMusicSourceToIPFS', multerImage.single("music"), (req, res) => {
     const url = "https://api.pinata.cloud/pinning/pinFileToIPFS";
     let data = new FormData();
-    let fsData = fs.createReadStream('./ImageToUpload/'+ req.file.filename);
+    let fsData = fs.createReadStream('./MusicToUpload/'+ req.file.filename);
     data.append('file', fsData);
     return axios.post(url, data, {
         maxBodyLength: 'Infinity',
@@ -66,7 +65,7 @@ app.post('/pinMusicSourceToIPFS', multerImage.single("music"), (req, res) => {
     })
     .then(function (response) {
         console.log(response.data);
-        fs.unlink('./ImageToUpload/' + req.file.filename, (err) => err ? console.log(err) : console.log("파일을 삭제했습니다."));
+        fs.unlink('./MusicToUpload/' + req.file.filename, (err) => err ? console.log(err) : console.log("파일을 삭제했습니다."));
         res.send("Pinned album cover to IPFS!");
     })
     .catch(function (error) {
